@@ -1,0 +1,188 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Backend API Tester</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+      section {
+        margin-bottom: 25px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+      }
+      h2 {
+        margin-top: 0;
+      }
+      label {
+        display: inline-block;
+        width: 200px;
+      }
+      input {
+        margin: 5px 0;
+      }
+      button {
+        padding: 5px 10px;
+      }
+      .result {
+        margin-top: 10px;
+        padding: 5px;
+        background: #f0f0f0;
+        border-radius: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Backend API Tester</h1>
+
+    <!-- Section for API #1: Set Room Capacity -->
+    <section>
+      <h2>Set Room Capacity</h2>
+      <form id="roomPeopleForm">
+        <label for="numPeople">Number of People:</label>
+        <input type="number" id="numPeople" name="numPeople" required />
+        <button type="submit">Set Room Capacity</button>
+      </form>
+      <div id="roomPeopleResult" class="result"></div>
+    </section>
+
+    <!-- Section for API #2: Set Pair Introduction Time -->
+    <section>
+      <h2>Set Pair Introduction Time</h2>
+      <form id="pairTimeForm">
+        <label for="pairTime">Time per Pair (minutes):</label>
+        <input type="number" id="pairTime" name="pairTime" required />
+        <button type="submit">Set Pair Time</button>
+      </form>
+      <div id="pairTimeResult" class="result"></div>
+    </section>
+
+    <!-- Section for API #3: Get Total Introduction Time -->
+    <section>
+      <h2>Get Total Introduction Time</h2>
+      <button id="getTotalIntroTimeBtn">Fetch Total Intro Time</button>
+      <div id="totalIntroTimeResult" class="result"></div>
+    </section>
+
+    <!-- Section for API #4: Get People List -->
+    <section>
+      <h2>Get People List</h2>
+      <button id="getPeopleListBtn">Fetch People List</button>
+      <div id="peopleListResult" class="result"></div>
+    </section>
+
+    <!-- Section for API #5: Get Service Status -->
+    <section>
+      <h2>Check Service Status</h2>
+      <button id="checkStatusBtn">Check Status</button>
+      <div id="statusResult" class="result"></div>
+    </section>
+
+    <script>
+      // Adjust baseUrl if your APIs are served from a different port/domain.
+      const baseUrl = ''; // Example: 'http://localhost:3000'
+
+      // API #1: Set Room Capacity
+      document
+        .getElementById('roomPeopleForm')
+        .addEventListener('submit', function (e) {
+          e.preventDefault();
+          const numPeople = document.getElementById('numPeople').value;
+          fetch(`${baseUrl}/room/people`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ number: parseInt(numPeople, 10) }),
+          })
+            .then((response) => response.json())
+            .then(() => {
+              document.getElementById('roomPeopleResult').innerText =
+                'Room capacity updated successfully.';
+            })
+            .catch((error) => {
+              document.getElementById('roomPeopleResult').innerText =
+                'Error: ' + error;
+            });
+        });
+
+      // API #2: Set Pair Introduction Time
+      document
+        .getElementById('pairTimeForm')
+        .addEventListener('submit', function (e) {
+          e.preventDefault();
+          const pairTime = document.getElementById('pairTime').value;
+          fetch(`${baseUrl}/room/intro-time`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ time: parseInt(pairTime, 10) }),
+          })
+            .then((response) => response.json())
+            .then(() => {
+              document.getElementById('pairTimeResult').innerText =
+                'Pair introduction time updated successfully.';
+            })
+            .catch((error) => {
+              document.getElementById('pairTimeResult').innerText =
+                'Error: ' + error;
+            });
+        });
+
+      // API #3: Get Total Introduction Time
+      document
+        .getElementById('getTotalIntroTimeBtn')
+        .addEventListener('click', function () {
+          fetch(`${baseUrl}/room/total-intro-time`)
+            .then((response) => response.json())
+            .then((data) => {
+              // Assuming the API returns { totalTime: <number> }
+              document.getElementById('totalIntroTimeResult').innerText =
+                'Total Introduction Time: ' + data.totalTime + ' minute(s)';
+            })
+            .catch((error) => {
+              document.getElementById('totalIntroTimeResult').innerText =
+                'Error: ' + error;
+            });
+        });
+
+      // API #4: Get People List
+      document
+        .getElementById('getPeopleListBtn')
+        .addEventListener('click', function () {
+          fetch(`${baseUrl}/room/people-list`)
+            .then((response) => response.json())
+            .then((data) => {
+              // Expected data structure: an array of objects with { name, photo }
+              let html = '<ul>';
+              data.forEach((person) => {
+                html += `<li>${person.name} <br><img src="${person.photo}" alt="Photo of ${person.name}" width="50"></li>`;
+              });
+              html += '</ul>';
+              document.getElementById('peopleListResult').innerHTML = html;
+            })
+            .catch((error) => {
+              document.getElementById('peopleListResult').innerText =
+                'Error: ' + error;
+            });
+        });
+
+      // API #5: Check Service Status
+      document
+        .getElementById('checkStatusBtn')
+        .addEventListener('click', function () {
+          fetch(`${baseUrl}/status`)
+            .then((response) => response.json())
+            .then((data) => {
+              // Assuming the API returns { status: "running" }
+              document.getElementById('statusResult').innerText =
+                'Service Status: ' + data.status;
+            })
+            .catch((error) => {
+              document.getElementById('statusResult').innerText =
+                'Error: ' + error;
+            });
+        });
+    </script>
+  </body>
+</html>
